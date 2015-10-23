@@ -1,0 +1,24 @@
+{
+  "name": "express-jwt",
+  "version": "1.0.0",
+  "description": "JWT with ExpressJS",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kierandenshi/express-jwt.git"
+  },
+  "author": "Kieran Denshi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kierandenshi/express-jwt/issues"
+  },
+  "homepage": "https://github.com/kierandenshi/express-jwt#readme",
+  "dependencies": {
+    "body-parser": "^1.14.1",
+    "express": "^4.13.3",
+    "jwt-simple": "^0.3.1"
+  }
+}
