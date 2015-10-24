@@ -2,7 +2,7 @@ var express = require('express');
 var jwt = require('jwt-simple');
 var bcrypt = require('bcrypt');
 var _ = require('lodash');
-
+var User = require('./user');
 
 var app = express();
 
@@ -33,6 +33,21 @@ app.post('/session', function(req, res) {
 		var token = jwt.encode({username: user.username}, secret);
 		res.json(token);
 	});	
+});
+
+app.post('/user', function(req, res, next) {
+	var user = new User({ username: req.body.username });
+	bcrypt.hash(req.body.password, 10, function(err, hash) {
+		user.password = hash;
+		user.save(function(err, next) {
+			if(err) {
+				throw next(err);
+			}
+			console.log(hash);
+			res.send(201);
+		});
+
+	});
 });
 
 app.get('/user', function(req, res) {
