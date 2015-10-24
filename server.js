@@ -1,7 +1,6 @@
 var express = require('express');
 var jwt = require('jwt-simple');
 var bcrypt = require('bcrypt');
-var _ = require('lodash');
 var User = require('./user');
 
 var app = express();
@@ -15,24 +14,26 @@ var users = [
 
 var secret = 'veganmulligatawnysoup';
 
-function findUserByUsername(username) {
-	return _.find(users, { username: username });
-}
-function validateUser(user, password, cb) {
-	bcrypt.compare(password, user.password, cb);
-}
 
-
-
-app.post('/session', function(req, res) {
-	var user = findUserByUsername(req.body.username);
-	validateUser(user, req.body.password, function(err, valid) {
-		if(err || !valid) {
+app.post('/session', function(req, res, next) {
+	User.findOne({username: req.body.username}).select('password').exec(function(err, user) {
+		if(err) {
+			return next(err);
+		}
+		if(!user) {
 			return res.send(401);
 		}
-		var token = jwt.encode({username: user.username}, secret);
-		res.json(token);
-	});	
+		bcrypt.compare(req.body.password, user.password, function(err, valid) {
+			if(err) {
+				return next(err);
+			}
+			if(!valid) {
+				return res.send(401);
+			}
+			var token = jwt.encode({username: user.username}, secret);
+			res.json(token);
+		});
+	});
 });
 
 app.post('/user', function(req, res, next) {
@@ -52,9 +53,11 @@ app.post('/user', function(req, res, next) {
 
 app.get('/user', function(req, res) {
 	var token = req.headers['x-auth'];
-	var user = jwt.decode(token, secret);
-	// TODO: get full user details
-	res.json(user);
+	var auth = jwt.decode(token, secret);
+	User.findOne({username: auth.username}, function(err, user) {
+		res.json(user);
+	});
+	
 });
 
 app.listen(3000);
